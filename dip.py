@@ -1,8 +1,4 @@
 from __future__ import print_function
-import matplotlib.pyplot as plt
-
-import os
-#os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 
 import numpy as np
 from models import *
@@ -12,9 +8,6 @@ import torch.optim
 
 from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 from utils.denoising_utils import *
-
-#torch.backends.cudnn.enabled = True
-#torch.backends.cudnn.benchmark =True
 
 dtype = torch.cuda.FloatTensor
 
@@ -34,7 +27,7 @@ OPTIMIZER='adam' # 'LBFGS'
 show_every = 1000
 exp_weight=0.99
 
-num_iter = 2400
+num_iter = 100
 input_depth = 3
 figsize = 5 
 

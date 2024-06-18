@@ -31,7 +31,7 @@ class GaussianDiffusionTrainer(nn.Module):
         self.register_buffer(
             'sqrt_one_minus_alphas_bar', torch.sqrt(1. - alphas_bar))
 
-    def forward(self, x_0):
+    def forward(self, x_0, use_dip):
         """
         Algorithm 1.
         """
@@ -41,10 +41,14 @@ class GaussianDiffusionTrainer(nn.Module):
             extract(self.sqrt_alphas_bar, t, x_0.shape) * x_0 +
             extract(self.sqrt_one_minus_alphas_bar, t, x_0.shape) * noise)
         
-        x_t = F.interpolate(x_t, scale_factor=2, mode='bilinear', align_corners=False)
-        x_t = self.dip(x_t)
-        x_t = F.interpolate(x_t, scale_factor=0.5, mode='bilinear', align_corners=False)
-        loss = F.mse_loss(self.model(x_t, t), noise, reduction='none')
+        if self.dip is not None and use_dip:
+            x_t = F.interpolate(x_t, scale_factor=2, mode='bilinear', align_corners=False)
+            x_t = self.dip(x_t)
+            x_t = F.interpolate(x_t, scale_factor=0.5, mode='bilinear', align_corners=False)
+        
+        x_t = self.model(x_t, t)
+        
+        loss = F.mse_loss(x_t, noise, reduction='none')
         return loss
 
 
