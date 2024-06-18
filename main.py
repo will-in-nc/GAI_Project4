@@ -2,7 +2,7 @@
 from dip import dip_train
 from ddpm import train
 
-use_dip = True
+use_dip = False
 
 if __name__ == "__main__":
 

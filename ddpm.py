@@ -2,6 +2,7 @@ import copy
 import os
 
 import torch
+import torch.nn.functional as F
 from PIL import Image
 from torchvision.utils import save_image
 from torchvision import transforms
@@ -41,7 +42,7 @@ var_type = 'fixedlarge'  # variance type
 # Training
 lr = 2e-4  # target learning rate
 grad_clip = 1.0  # gradient norm clipping
-total_steps = 100000  # total training steps
+total_steps = 30000  # total training steps
 img_size = 32  # image size
 warmup = 5000  # learning rate warmup
 batch_size = 8  # batch size
@@ -74,7 +75,7 @@ def train(dip_model, image_path):
         image_path=image_path,
         transform=transforms.Compose([
             transforms.Resize((img_size, img_size)),
-            transforms.RandomHorizontalFlip(),
+            #transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ])
@@ -109,6 +110,11 @@ def train(dip_model, image_path):
         os.makedirs(os.path.join(logdir, 'sample'))
     x_T = torch.randn(sample_size, 3, img_size, img_size)
     x_T = x_T.to(device)
+    if dip_model is not None:
+        x_T = F.interpolate(x_T, scale_factor=2, mode='bilinear', align_corners=False)
+        x_T = dip_model(x_T)
+        x_T = F.interpolate(x_T, scale_factor=0.5, mode='bilinear', align_corners=False)
+
     datalooper = iter(dataloader)
     x_0 = next(datalooper).to(device)
 
